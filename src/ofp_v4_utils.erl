@@ -143,6 +143,8 @@ required(tcp_src) ->
     {ip_proto,<<6:8>>};
 required(tcp_dst) ->
     {ip_proto,<<6:8>>};
+required(tcp_flags) ->
+    {ip_proto,<<6:8>>};
 required(udp_src) ->
     {ip_proto,<<17:8>>};
 required(udp_dst) ->
@@ -191,8 +193,6 @@ required(pbb_isid) ->
     {eth_type,<<16#88E7:16>>};
 required(ipv6_exthdr) ->
     {eth_type,<<16#86dd:16>>};
-required(tcp_flags) ->
-    {ip_proto,<<6:8>>};
 required(_) ->
     none.
 
@@ -491,13 +491,17 @@ och_sigid(Value) ->
        name = och_sigid,
        value = Value,
        has_mask = false}.
+%% ---END--- LINC-OE
 
 % ip_proto=6
 tcp_flags(Val) when byte_size(Val)==2 ->
     #ofp_field{name = tcp_flags,
                value = Val}.
-
-%% ---END--- LINC-OE
+tcp_flags(Val, Mask) when byte_size(Val)==2, byte_size(Mask)==2 ->
+    #ofp_field{name = tcp_flags,
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x88e7
 %% pbb_isid
