@@ -95,35 +95,35 @@ mk_match({Field,Val,Mask}, Acc) ->
 
 add_required_fields(Field, Acc) ->
     case required(Field) of
-	{F,V} ->
-	    case has_match(F,V,Acc) of
-		missing ->
-		    [?MODULE:F(V)|add_required_fields(F, Acc)];
-		present ->
-		    Acc
-	    end;
-	[{F1,V1},{F2,V2}]=M ->
-	    case (has_match(F1,V1,Acc)==present) or (has_match(F2,V2,Acc)==present) of
-		true ->
-		    Acc;
-		false ->
-		    throw({missing_match,M})
-	    end;
-	none ->
-	    Acc
+        {F,V} ->
+            case has_match(F,V,Acc) of
+                missing ->
+                    [?MODULE:F(V)|add_required_fields(F, Acc)];
+                present ->
+                    Acc
+            end;
+        [{F1,V1},{F2,V2}]=M ->
+            case (has_match(F1,V1,Acc)==present) or (has_match(F2,V2,Acc)==present) of
+                true ->
+                    Acc;
+                false ->
+                    throw({missing_match,M})
+            end;
+        none ->
+            Acc
     end.
     
     
 has_match(Field, Val, Acc) ->
     case lists:keyfind(Field, #ofp_field.name, Acc) of
-	#ofp_field{value=Val} ->
-	    present;
-	#ofp_field{} ->
-	    other;
-	false ->
-	    missing
+        #ofp_field{value=Val} ->
+            present;
+        #ofp_field{} ->
+            other;
+        false ->
+            missing
     end.
-				      
+                                      
 required(in_phy_port) ->
     in_port;
 required(vlan_pcp) ->
@@ -191,6 +191,8 @@ required(pbb_isid) ->
     {eth_type,<<16#88E7:16>>};
 required(ipv6_exthdr) ->
     {eth_type,<<16#86dd:16>>};
+required(tcp_flags) ->
+    {ip_proto,<<6:8>>};
 required(_) ->
     none.
 
@@ -207,128 +209,128 @@ in_port(Val) when is_integer(Val) ->
     in_port(<<Val:32>>);
 in_port(Val) when byte_size(Val)==4 ->
     #ofp_field{name = in_port,
-	       value = Val}.
+               value = Val}.
 % in_port
 in_phy_port(Val) when is_integer(Val) ->
     in_phy_port(<<Val:32>>);
 in_phy_port(Val) when byte_size(Val)==4 ->
     #ofp_field{name = phy_port,
-	      value = Val}.
+              value = Val}.
 
 metadata(Val) when byte_size(Val)==8 ->
     #ofp_field{name = metadata,
-	      value = Val}.
+              value = Val}.
 metadata(Val, Mask) when byte_size(Val)==8, byte_size(Mask)==8  ->
     #ofp_field{name = metadata,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 eth_dst({M1,M2,M3,M4,M5,M6}) ->
     eth_dst(<<M1,M2,M3,M4,M5,M6>>);
 eth_dst(Val) when byte_size(Val)==6 ->
     #ofp_field{name = eth_dst,
-	      value = Val}.
+              value = Val}.
 eth_dst(Val, Mask) when byte_size(Val)==6 ->
     #ofp_field{name = eth_dst,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 eth_src({M1,M2,M3,M4,M5,M6}) ->
     eth_src(<<M1,M2,M3,M4,M5,M6>>);
 eth_src(Val) when byte_size(Val)==6 ->
     #ofp_field{name = eth_src,
-	      value = Val}.
+              value = Val}.
 eth_src(Val, Mask) when byte_size(Val)==6, byte_size(Mask)==6 ->
     #ofp_field{name = eth_src,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 eth_type(Val) when is_integer(Val) ->
     eth_type(<<Val:16>>);
 eth_type(Val) when byte_size(Val)==2 ->
     #ofp_field{name = eth_type,
-	      value = Val}.
+              value = Val}.
 
 vlan_vid(Val) when is_integer(Val) ->
     vlan_vid(<<Val:13>>);
 vlan_vid(Val) ->
     #ofp_field{name = vlan_vid,
-	      value = Val}.
+              value = Val}.
 vlan_vid(Val, Mask) when is_integer(Val), is_integer(Mask) ->
     vlan_vid(<<Val:13>>, <<Mask:13>>);
 vlan_vid(Val, Mask) ->
     #ofp_field{name = vlan_vid,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 %vlan.vid<>none
 vlan_pcp(Val) -> %3
     #ofp_field{name = vlan_pcp,
-	      value = Val}.
+              value = Val}.
 
 % eth_typy=0x800|0x86dd
 ip_dscp(Val) -> %6
     #ofp_field{name = ip_dscp,
-	      value = Val}.
+              value = Val}.
  
 % eth_typy=0x800|0x86dd
 ip_ecn(Val) -> %2
     #ofp_field{name = ip_ecn,
-	      value = Val}.
+              value = Val}.
 
 % eth_typy=0x800|0x86dd
 ip_proto(Val) -> %8
     #ofp_field{name = ip_proto,
-	      value = Val}.
+              value = Val}.
 
 % eth_typy=0x800
 ipv4_src(Val) when byte_size(Val)==4 ->
     #ofp_field{name = ipv4_src,
-	      value = Val}.
+              value = Val}.
 ipv4_src(Val, Mask) when byte_size(Val)==4, byte_size(Mask)==4 ->
     #ofp_field{name = ipv4_src,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_typy=0x800
 ipv4_dst(Val) when byte_size(Val)==4 ->
     #ofp_field{name = ipv4_dst,
-	      value = Val}.
+              value = Val}.
 ipv4_dst(Val, Mask) when byte_size(Val)==4, byte_size(Mask)==4 ->
     #ofp_field{name = ipv4_dst,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % ip_proto=6
 tcp_src(Val) when byte_size(Val)==2 ->
     #ofp_field{name = tcp_src,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=6
 tcp_dst(Val) when byte_size(Val)==2 ->
     #ofp_field{name = tcp_dst,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=17
 udp_src(Val) when byte_size(Val)==2 ->
     #ofp_field{name = udp_src,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=17
 udp_dst(Val) when byte_size(Val)==2 ->
     #ofp_field{name = udp_dst,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=132
 sctp_src(Val) when byte_size(Val)==2 ->
     #ofp_field{name = sctp_src,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=132
 sctp_dst(Val) when byte_size(Val)==2 ->
@@ -338,98 +340,98 @@ sctp_dst(Val) when byte_size(Val)==2 ->
 % ip_proto=1
 icmpv4_type(Val) -> %8
     #ofp_field{name = icmpv4_type,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=1
 icmpv4_code(Val) -> %8
     #ofp_field{name = icmpv4_code,
-	      value = Val}.
+              value = Val}.
 
 % eth_type=0x806
 arp_op(Val) -> % 16
     #ofp_field{name = arp_op,
-	      value = Val}.
+              value = Val}.
 
 % eth_type=0x806
 arp_spa(Val) -> % 32
     #ofp_field{name = arp_spa,
-	      value = Val}.
+              value = Val}.
 % eth_type=0x806
 arp_spa(Val, Mask) ->
     #ofp_field{name = arp_spa,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x806
 arp_tpa(Val) -> % 32
     #ofp_field{name = arp_tpa,
-	      value = Val}.
+              value = Val}.
 arp_tpa(Val, Mask) ->
     #ofp_field{name = arp_tpa,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x806
 arp_sha(Val) -> % 48
     #ofp_field{name = arp_sha,
-	      value = Val}.
+              value = Val}.
 arp_sha(Val, Mask) ->
     #ofp_field{name = arp_sha,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x806
 arp_tha(Val) -> % 48
     #ofp_field{name = arp_tha,
-	      value = Val}.
+              value = Val}.
 arp_tha(Val, Mask) ->
     #ofp_field{name = arp_tha,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x86dd
 ipv6_src(Val) -> % 128
     #ofp_field{name = ipv6_src,
-	      value = Val}.
+              value = Val}.
 ipv6_src(Val, Mask) ->
     #ofp_field{name = ipv6_src,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x86dd
 ipv6_dst(Val) -> % 128
     #ofp_field{name = ipv6_dst,
-	      value = Val}.
+              value = Val}.
 ipv6_dst(Val, Mask) ->
     #ofp_field{name = ipv6_dst,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % eth_type=0x86dd
 ipv6_label(Val) -> % 20
     #ofp_field{name = ipv6_label,
-	      value = Val}.
+              value = Val}.
 ipv6_label(Val, Mask) ->
     #ofp_field{name = ipv6_label,
-	      value = Val,
-	      has_mask = true,
-	      mask = Mask}.
+              value = Val,
+              has_mask = true,
+              mask = Mask}.
 
 % ip_proto=0x58
 icmpv6_type(Val) -> % 8
     #ofp_field{name = icmpv6_type,
-	      value = Val}.
+              value = Val}.
 
 % ip_proto=0x58
 icmpv6_code(Val) -> % 8
     #ofp_field{name = icmpv6_code,
-	      value = Val}.
+              value = Val}.
 
 % icmpv6_type=135|136
 ipv6_nd_target(Val) -> % 128
@@ -439,17 +441,17 @@ ipv6_nd_target(Val) -> % 128
 % icmpv6_type=135
 ipv6_nd_sll(Val) -> % 48
     #ofp_field{name = ipv6_nd_sll,
-	      value = Val}.
+              value = Val}.
 
 % icmpv6_type=136
 ipv6_nd_tll(Val) -> % 48
     #ofp_field{name = ipv6_nd_tll,
-	      value = Val}.
+              value = Val}.
 
 % eth_type=0x8847|0x8848
 mpls_label(Val) -> % 20
     #ofp_field{name = mpls_label,
-	      value = Val}.
+              value = Val}.
 
 % eth_type=0x8847|0x8848
 mpls_tc(Val) -> % 3
@@ -489,6 +491,12 @@ och_sigid(Value) ->
        name = och_sigid,
        value = Value,
        has_mask = false}.
+
+% ip_proto=6
+tcp_flags(Val) when byte_size(Val)==2 ->
+    #ofp_field{name = tcp_flags,
+               value = Val}.
+
 %% ---END--- LINC-OE
 
 % eth_type=0x88e7
@@ -527,14 +535,14 @@ mk_instruction({write_metadata, Metadata}) ->
 
 mk_instruction({write_metadata, Metadata, Mask}) ->
     #ofp_instruction_write_metadata{metadata=Metadata,
-				   metadata_mask=Mask};
+                                   metadata_mask=Mask};
 
 mk_instruction({goto_table, Table}) ->
     #ofp_instruction_goto_table{table_id=Table};
 
 mk_instruction({experimenter_instr, Exp, Data}) ->
     #ofp_instruction_experimenter{experimenter = Exp,
-				 data = Data}.
+                                 data = Data}.
 
 %%=============================================================================
 %& Actions
@@ -544,7 +552,7 @@ mk_actions(As) ->
 
 mk_action({output, Port, MaxLen}) ->
     #ofp_action_output{port = Port,
-		       max_len = MaxLen};
+                       max_len = MaxLen};
 
 mk_action({group, Group}) ->
     #ofp_action_group{group_id = Group};
@@ -587,4 +595,4 @@ mk_action({set_field, Name, Value}) ->
 
 mk_action({experimenter, Exp, Data}) ->
     #ofp_action_experimenter{experimenter = Exp,
-			    data = Data}.
+                            data = Data}.
